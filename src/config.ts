@@ -1,0 +1,53 @@
+// Env vars are loaded by Node's built-in `--env-file=.env` flag (see package.json scripts).
+// No dotenv dependency needed on Node 24+.
+
+function required(name: string): string {
+  const v = process.env[name];
+  if (!v || v.trim() === "") {
+    throw new Error(`Missing required environment variable: ${name}`);
+  }
+  return v;
+}
+
+function optional(name: string, fallback: string): string {
+  const v = process.env[name];
+  return v && v.trim() !== "" ? v : fallback;
+}
+
+const port = Number(optional("LOCAL_SERVER_PORT", "3000"));
+if (!Number.isInteger(port) || port <= 0 || port > 65535) {
+  throw new Error(`LOCAL_SERVER_PORT must be a valid TCP port, got: ${port}`);
+}
+
+const publicUrl = required("PUBLIC_URL").replace(/\/$/, "");
+
+export const config = {
+  wikijs: {
+    url: required("WIKIJS_URL").replace(/\/$/, ""),
+    apiKey: required("WIKIJS_API_KEY"),
+  },
+  oauth: {
+    jwtSecret: required("JWT_SECRET"),
+    masterPassword: required("OAUTH_PW"),
+    accessTokenTtlSec: 60 * 60, // 1h
+    refreshTokenTtlSec: 60 * 60 * 24 * 30, // 30d
+    authCodeTtlSec: 60 * 5, // 5m
+  },
+  server: {
+    /**
+     * Bind address for the HTTP listener. Defaults to loopback-only because the
+     * reverse proxy is expected on the same host. The Dockerfile sets BIND_HOST=0.0.0.0
+     * so the container's published port is reachable from the host's proxy.
+     */
+    bindHost: optional("BIND_HOST", "127.0.0.1"),
+    port,
+    publicUrl,
+    /** Used as `aud` claim on issued tokens (RFC 8707 audience binding). */
+    resourceUri: `${publicUrl}/mcp`,
+  },
+  paths: {
+    dbFile: optional("DB_FILE", "./wikijs-mcp.sqlite"),
+  },
+} as const;
+
+export type AppConfig = typeof config;

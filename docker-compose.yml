@@ -1,0 +1,31 @@
+services:
+  wikijs-mcp:
+    # Build locally by default. Replace `build: .` with an `image:` line if you
+    # publish to a registry (e.g. ghcr.io/your-org/wikijs-mcp:latest).
+    build: .
+    container_name: wikijs-mcp
+    # Bind to host loopback only — your reverse proxy (Caddy/nginx/Traefik/Cloudflared)
+    # is expected to terminate TLS on the same host and forward here. Drop the
+    # "127.0.0.1:" prefix only if the proxy lives on a different machine.
+    ports:
+      - "127.0.0.1:3000:3000"
+    volumes:
+      - mcp-data:/app/data
+    environment:
+      WIKIJS_URL: ${WIKIJS_URL}
+      WIKIJS_API_KEY: ${WIKIJS_API_KEY}
+      JWT_SECRET: ${JWT_SECRET}
+      OAUTH_PW: ${OAUTH_PW}
+      PUBLIC_URL: ${PUBLIC_URL}
+      # LOCAL_SERVER_PORT, BIND_HOST, and DB_FILE are baked into the image;
+      # override here only if you need a non-default container layout.
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:3000/healthz"]
+      interval: 30s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
+
+volumes:
+  mcp-data:
