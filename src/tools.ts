@@ -92,7 +92,7 @@ const Q_GET_PAGE_BY_ID = /* GraphQL */ `
         isPrivate isPublished privateNS
         publishStartDate publishEndDate
         tags { id tag title }
-        content render toc contentType
+        content render contentType
         createdAt updatedAt editor locale
         scriptCss scriptJs
         authorId authorName authorEmail
@@ -109,7 +109,7 @@ const Q_GET_PAGE_BY_PATH = /* GraphQL */ `
         id path hash title description
         isPrivate isPublished
         tags { id tag title }
-        content render toc contentType
+        content render contentType
         createdAt updatedAt editor locale
         authorName authorEmail
       }
