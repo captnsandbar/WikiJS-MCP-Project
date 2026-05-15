@@ -92,12 +92,17 @@ server {
 
 **Traefik / Cloudflared / NPM:** point at `http://127.0.0.1:3000` and let them handle the cert.
 
-### 4. Build and run
+### 4. Pull and run
+
+The image is published to GHCR by the `docker-publish.yml` workflow on every push to `main`. To deploy:
 
 ```bash
-docker compose up -d --build
+docker compose pull
+docker compose up -d
 docker compose logs -f wikijs-mcp
 ```
+
+To build locally instead, comment out the `image:` line in `docker-compose.yml`, uncomment `build: .`, and run `docker compose up -d --build`.
 
 You should see:
 
@@ -151,6 +156,17 @@ Then point [MCP Inspector](https://github.com/modelcontextprotocol/inspector) at
 ```bash
 npx @modelcontextprotocol/inspector
 ```
+
+## CI / image publishing
+
+`.github/workflows/docker-publish.yml` builds and pushes a multi-arch (`linux/amd64`, `linux/arm64`) image to GHCR on every push to `main`. Tags emitted:
+
+- `latest` (on `main`)
+- `sha-<short>` (commit SHA for pinning)
+- `main` (branch tag)
+- `vX.Y.Z` + `vX.Y` (when you push a `v*.*.*` git tag)
+
+The workflow uses `GITHUB_TOKEN` — no extra secrets needed. The first push will create the GHCR package as **private**; flip it to public in the package settings if you want unauthenticated pulls.
 
 ## Project layout
 

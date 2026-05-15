@@ -1,8 +1,8 @@
 services:
   wikijs-mcp:
-    # Build locally by default. Replace `build: .` with an `image:` line if you
-    # publish to a registry (e.g. ghcr.io/your-org/wikijs-mcp:latest).
-    build: .
+    # Image published by .github/workflows/docker-publish.yml on every push to main.
+    # See: https://github.com/captnsandbar/WikiJS-MCP-Project/pkgs/container/wikijs-mcp-project
+    image: ghcr.io/captnsandbar/wikijs-mcp-project:latest
     container_name: wikijs-mcp
     # Bind to host loopback only — your reverse proxy (Caddy/nginx/Traefik/Cloudflared)
     # is expected to terminate TLS on the same host and forward here. Drop the
@@ -20,12 +20,16 @@ services:
       # LOCAL_SERVER_PORT, BIND_HOST, and DB_FILE are baked into the image;
       # override here only if you need a non-default container layout.
     restart: unless-stopped
+    pull_policy: always
     healthcheck:
       test: ["CMD", "curl", "-fsS", "http://127.0.0.1:3000/healthz"]
       interval: 30s
       timeout: 5s
       start_period: 10s
       retries: 3
+    # To pull a newer image: `docker compose pull && docker compose up -d`
+    # To build locally instead of pulling, comment `image:` above and uncomment:
+    # build: .
 
 volumes:
   mcp-data:
