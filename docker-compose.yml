@@ -7,8 +7,10 @@ services:
     # Bind to host loopback only — your reverse proxy (Caddy/nginx/Traefik/Cloudflared)
     # is expected to terminate TLS on the same host and forward here. Drop the
     # "127.0.0.1:" prefix only if the proxy lives on a different machine.
+    # HOST_PORT defaults to 3000; change in .env if that's taken on your host.
+    # The container always listens on 3000 internally.
     ports:
-      - "127.0.0.1:3000:3000"
+      - "127.0.0.1:${HOST_PORT:-3000}:3000"
     volumes:
       - mcp-data:/app/data
     environment:

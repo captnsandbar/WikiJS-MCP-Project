@@ -92,6 +92,8 @@ server {
 
 **Traefik / Cloudflared / NPM:** point at `http://127.0.0.1:3000` and let them handle the cert.
 
+> If port 3000 is already in use on your host, set `HOST_PORT=<other-port>` in `.env` and point your proxy at that port. The container always listens on 3000 internally — `HOST_PORT` only affects the host-side mapping.
+
 ### 4. Pull and run
 
 The image is published to GHCR by the `docker-publish.yml` workflow on every push to `main`. To deploy:
